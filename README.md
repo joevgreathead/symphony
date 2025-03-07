@@ -1,24 +1,17 @@
-# README
+# Symphony
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+_This is simply an attempt to orchestrate some data._
 
-Things you may want to cover:
+## Setup
 
-* Ruby version
+```
+bundle install
+overmind s
+```
 
-* System dependencies
+## Tech
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- Rails
+- PostgreSQL
+- Sidekiq
+- AWS S3

@@ -31,6 +31,7 @@ gem 'tzinfo-data', platforms: %i[windows jruby]
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]
+  gem 'dotenv'
   gem 'factory_bot'
   gem 'factory_bot_rails'
   gem 'faker'
@@ -47,3 +48,5 @@ group :test do
   gem 'capybara'
   gem 'selenium-webdriver'
 end
+
+gem 'sidekiq', '~> 8.0'
