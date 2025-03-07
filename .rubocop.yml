@@ -1,0 +1,12 @@
+plugins: rubocop-rails
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3.7
+  TargetRailsVersion: 7.1
+  # MigratedSchemaVersion: 111
+  Exclude:
+    - "bin/*"
+
+Style/Documentation:
+  Enabled: false
