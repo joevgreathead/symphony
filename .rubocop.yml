@@ -4,7 +4,7 @@ AllCops:
   NewCops: enable
   TargetRubyVersion: 3.3.7
   TargetRailsVersion: 7.1
-  # MigratedSchemaVersion: 111
+  MigratedSchemaVersion: 20250307040016
   Exclude:
     - "bin/*"
 
