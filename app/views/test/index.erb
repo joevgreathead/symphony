@@ -1,6 +1,10 @@
 <div class="p-8">
   <%= form_with url: test_index_url, class: '*:mb-4', data: { turbo: false } do |form| %>
     <p>
+      <%= form.label 'Job type', for: :job_type %>
+      <%= form.select :job_type, job_options, include_blank: true, required: true %>
+    </p>
+    <p>
       <%= form.label 'Text input', for: :input %>
       <%= form.text_field :input, class: 'border-2' %>
     </p>

@@ -28,4 +28,7 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  errors:
+    invalid_job_type: Invalid job type!
+  notice:
+    job_type_queued: An instance of %{job_type} was enqueued
