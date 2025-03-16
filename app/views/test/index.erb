@@ -1,0 +1,9 @@
+<div class="p-8">
+  <%= form_with url: test_index_url, class: '*:mb-4', data: { turbo: false } do |form| %>
+    <p>
+      <%= form.label 'Text input', for: :input %>
+      <%= form.text_field :input, class: 'border-2' %>
+    </p>
+    <%= form.submit 'Run job', class: 'border-2 p-2 rounded-md' %>
+  <% end %>
+</div>
