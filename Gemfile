@@ -38,6 +38,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'benchmark', '~> 0.4.0'
   gem 'rack-mini-profiler'
   gem 'rubocop', '~> 1.73', require: false
   gem 'rubocop-rails', require: false
