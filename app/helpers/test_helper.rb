@@ -2,6 +2,7 @@
 
 module TestHelper
   JOB_TYPES = [
+    DownloadAndInsertJob,
     TimeJob
   ].freeze
 

@@ -50,3 +50,5 @@ group :test do
 end
 
 gem 'sidekiq', '~> 8.0'
+
+gem 'aws-sdk-s3', '~> 1.182'
