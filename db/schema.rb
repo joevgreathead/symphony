@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 20_250_307_040_016) do
+ActiveRecord::Schema[7.1].define(version: 20_250_319_025_639) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
+
+  create_table 'ingestions', force: :cascade do |t|
+    t.string 'file_name'
+    t.integer 'rows'
+    t.datetime 'ingested_at', precision: nil
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.string 'state'
+    t.index ['id'], name: 'index_ingestions_on_id'
+  end
 
   create_table 'users', force: :cascade do |t|
     t.string 'first_name'
@@ -21,5 +31,15 @@ ActiveRecord::Schema[7.1].define(version: 20_250_307_040_016) do
     t.string 'phone_number'
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+  end
+
+  create_table 'validation_errors', force: :cascade do |t|
+    t.string 'item_type'
+    t.string 'error_field'
+    t.text 'error_message'
+    t.integer 'ingestion_id'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index %w[item_type error_field], name: 'index_validation_errors_on_item_type_and_error_field'
   end
 end

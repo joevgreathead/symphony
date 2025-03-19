@@ -6,13 +6,31 @@ class SideKiqJob
   def perform(*args)
     print_time_spent do
       print_memory_usage do
+        start(*args)
         run(*args)
+        complete(*args)
+      rescue StandardError => e
+        error(error, *args)
+
+        raise
       end
     end
   end
 
+  def start(*_)
+    logger.debug 'Start step for job is not defined'
+  end
+
   def run(*args)
     raise NotImplementedError
+  end
+
+  def error(_, *_)
+    logger.debug 'Error step for job is not defined'
+  end
+
+  def complete(*_)
+    logger.debug 'Complete step for job is not defined'
   end
 
   # Via: https://dalibornasevic.com/posts/68-processing-large-csv-files-with-ruby

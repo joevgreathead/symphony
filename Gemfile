@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 
 ruby '3.3.7'
 
+gem 'aasm', '~> 5.5'
+gem 'after_commit_everywhere', '~> 1.6'
 gem 'aws-sdk-s3', '~> 1.182'
 gem 'bootsnap', require: false
 gem 'cssbundling-rails'
