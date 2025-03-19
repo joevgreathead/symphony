@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-class FileIngestJobTest < Minitest::Test
+
+class CsvProcessingJobTest < Minitest::Test
   def setup
     @bucket = 'bucket_name'
     @object_key = 'test.csv'
@@ -11,9 +12,10 @@ class FileIngestJobTest < Minitest::Test
   end
 
   def test_process_correct_number_of_rows
+    CsvProcessingJob.any_instance.stubs(:process_job)
     csv_data = "First,Last,Email,Phone\nJohn,Smith,js@js.com,123-456-7890\nJane,Doe,jd@jd.com,098-765-4321"
     @mock_s3_client.expects(:get_object).multiple_yields(csv_data)
-    @job = FileIngestJob.new
+    @job = CsvProcessingJob.new
 
     @job.expects(:process_row).times(2)
 
@@ -21,6 +23,7 @@ class FileIngestJobTest < Minitest::Test
   end
 
   def test_load_works_across_chunks
+    CsvProcessingJob.any_instance.stubs(:process_job)
     csv_chunks = [
       "First,Last,Email,Phone\nJo",
       'hn,Smith,js@js.com,123-4',
@@ -29,10 +32,16 @@ class FileIngestJobTest < Minitest::Test
     ]
     @mock_s3_client.expects(:get_object).multiple_yields(csv_chunks.first, csv_chunks.second, csv_chunks.third,
                                                          csv_chunks.fourth)
-    @job = FileIngestJob.new
+    @job = CsvProcessingJob.new
 
     @job.expects(:process_row).times(2)
 
     @job.perform(@object_key)
+  end
+
+  def test_raises_not_implemented_error
+    assert_raises NotImplementedError do
+      CsvProcessingJob.new.process_row nil
+    end
   end
 end

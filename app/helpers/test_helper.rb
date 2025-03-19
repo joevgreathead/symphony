@@ -3,6 +3,7 @@
 module TestHelper
   JOB_TYPES = [
     BucketListJob,
+    CsvProcessingJob,
     FileIngestJob,
     TimeJob
   ].freeze
