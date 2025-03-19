@@ -119,6 +119,7 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
+    csv (3.3.2)
     date (3.4.1)
     debug (1.10.0)
       irb (~> 1.10)
@@ -164,6 +165,8 @@ GEM
     matrix (0.4.2)
     mini_mime (1.1.5)
     minitest (5.25.4)
+    mocha (2.7.1)
+      ruby2_keywords (>= 0.0.5)
     msgpack (1.8.0)
     mutex_m (0.3.0)
     net-imap (0.5.6)
@@ -281,6 +284,7 @@ GEM
       rubocop (>= 1.72.1, < 2.0)
       rubocop-ast (>= 1.38.0, < 2.0)
     ruby-progressbar (1.13.0)
+    ruby2_keywords (0.0.5)
     rubyzip (2.4.1)
     securerandom (0.4.1)
     selenium-webdriver (4.29.1)
@@ -340,6 +344,7 @@ DEPENDENCIES
   bootsnap
   capybara
   cssbundling-rails
+  csv (~> 3.3)
   debug
   dotenv
   factory_bot
@@ -347,6 +352,7 @@ DEPENDENCIES
   faker
   jbuilder
   jsbundling-rails
+  mocha (~> 2.7)
   pg (~> 1.1)
   propshaft
   puma (>= 5.0)

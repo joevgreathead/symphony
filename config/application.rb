@@ -25,5 +25,6 @@ module Symphony
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.s3_bucket = ENV.fetch('AWS_S3_BUCKET', 'joevgreathead')
   end
 end

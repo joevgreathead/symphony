@@ -80,4 +80,7 @@ Rails.application.configure do # rubocop:disable Metrics/BlockLength
       system("bundle exec rubocop -A --fail-level=E #{parsable_files.shelljoin}", exception: true)
     end
   end
+
+  # Set log level
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'debug')
 end
