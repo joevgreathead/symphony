@@ -13,7 +13,7 @@ namespace :sample do
         csv << [
           risk(20, "Joe ##{time}"),
           risk(20, 'Smith'),
-          risk(20, "joe.smith#{time}@example.com"),
+          risk(20, "joe.smith#{time}#{risk(20, '@')}example.com"),
           risk(20, "123#{time.to_s.rjust(7, '0')}"),
           time.to_s.rjust(42, '0')
         ]
