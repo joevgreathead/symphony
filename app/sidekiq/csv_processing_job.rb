@@ -7,7 +7,9 @@ class CsvProcessingJob < SideKiqJob
   def run(s3_object_key)
     # Download a CSV and insert it into the database using minimal memory
     s3_client = Aws::S3::Client.new
-    file_key = s3_object_key.presence || 'symphony/data/imports/test-dates-y2025.csv'
+    # file_key = s3_object_key.presence || 'symphony/data/imports/test-dates-y2025.csv'
+    # file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k.csv'
+    file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k_with_errors.csv'
 
     @buffer = ''
     @header = []
