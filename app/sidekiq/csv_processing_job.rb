@@ -9,7 +9,8 @@ class CsvProcessingJob < SideKiqJob
     s3_client = Aws::S3::Client.new
     # file_key = s3_object_key.presence || 'symphony/data/imports/test-dates-y2025.csv'
     # file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k.csv'
-    file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k_with_errors.csv'
+    # file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k_with_errors.csv'
+    file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k_errors_invalid_emails.csv'
 
     @buffer = ''
     @header = []
@@ -45,6 +46,14 @@ class CsvProcessingJob < SideKiqJob
     end
   end
 
+  def pre_process_row(_)
+    logger.debug 'Pre-process step is not defined for job'
+  end
+
+  def post_process_row(_)
+    logger.debug 'Post-process step is not defined for job'
+  end
+
   def call_process_with_row(row_str)
     return if row_str.empty?
 
@@ -52,7 +61,9 @@ class CsvProcessingJob < SideKiqJob
 
     @line_count += 1
 
-    process_row(row)
+    pre_process_row row
+    process_row row
+    post_process_row row
   end
 
   def process_row(row)
