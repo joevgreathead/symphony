@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'get_process_mem'
+
 class SideKiqJob
   include Sidekiq::Job
 
@@ -33,13 +35,13 @@ class SideKiqJob
     logger.debug 'Complete step for job is not defined'
   end
 
-  # Via: https://dalibornasevic.com/posts/68-processing-large-csv-files-with-ruby
   def print_memory_usage
-    memory_before = `ps -o rss= -p #{Process.pid}`.to_i
+    mem = ::GetProcessMem.new
+    memory_before = mem.mb
     yield
-    memory_after = `ps -o rss= -p #{Process.pid}`.to_i
+    memory_after = mem.mb
 
-    Rails.logger.debug { "Memory reported by SideKiqJob: #{((memory_after - memory_before) / 1024.0).round(2)} MB" }
+    Rails.logger.debug { "Memory reported by SideKiqJob: #{(memory_after - memory_before).round(2)} MB" }
   end
 
   # Via: https://dalibornasevic.com/posts/68-processing-large-csv-files-with-ruby

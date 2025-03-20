@@ -49,3 +49,5 @@ group :test do
   gem 'mocha', '~> 2.7'
   gem 'selenium-webdriver'
 end
+
+gem "get_process_mem", "~> 1.0"
