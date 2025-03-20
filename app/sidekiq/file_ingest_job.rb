@@ -60,6 +60,7 @@ class FileIngestJob < CsvProcessingJob
 
     if valid
       logger.info 'Valid: true'
+      # TODO: Stream in valid row
     else
       logger.info "Errors: #{error_fields.join(', ')}"
       @error_rows << { row:, error_fields: }
@@ -87,9 +88,6 @@ class FileIngestJob < CsvProcessingJob
 
         validator.call(row, field)
       end
-
-      Rails.logger.debug { "Row: #{row}" }
-      Rails.logger.debug { "Errors: #{error_fields}}" }
 
       [error_fields.empty?, error_fields.map { |field| field.values_at(:field, :message) }]
     end
