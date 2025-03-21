@@ -34,6 +34,8 @@ group :development, :test do
   gem 'factory_bot'
   gem 'factory_bot_rails'
   gem 'faker'
+  gem 'get_process_mem', '~> 1.0'
+  gem 'pry'
 end
 
 group :development do
@@ -49,5 +51,3 @@ group :test do
   gem 'mocha', '~> 2.7'
   gem 'selenium-webdriver'
 end
-
-gem "get_process_mem", "~> 1.0"

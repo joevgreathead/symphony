@@ -11,6 +11,7 @@ class FileIngestJob < CsvProcessingJob
     phone: 4
   }.freeze
 
+  BATCH_SIZE = 1_000
   DEFAULT_VALIDATION = ->(row, field) { valid_field?(row, field) }
   FIELD_DEFAULT = { validator: DEFAULT_VALIDATION }.freeze
   FIELDS = [
@@ -42,6 +43,7 @@ class FileIngestJob < CsvProcessingJob
     @ingestion = Ingestion.create(file_name: s3_object_key)
     @error_rows = []
     @error_row_count = 0
+    checkpoint
   end
 
   def error(_, _)
@@ -53,6 +55,7 @@ class FileIngestJob < CsvProcessingJob
     @ingestion.update(state: :ingested, rows: @line_count)
 
     logger.info "Found #{@error_row_count} rows with errors"
+    checkpoint
   end
 
   def process_row(row)
@@ -69,11 +72,15 @@ class FileIngestJob < CsvProcessingJob
   end
 
   def post_process_row(_)
-    process_error_rows if (@error_row_count % 500).zero?
+    process_error_rows if (@error_row_count % BATCH_SIZE).zero?
+
+    checkpoint if (rand(1..500) % 500).zero?
   end
 
   def process_error_rows
     return if @error_rows.empty?
+
+    checkpoint
 
     logger.info "Found another #{@error_rows.size} error rows"
 
