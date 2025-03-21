@@ -7,10 +7,7 @@ class CsvProcessingJob < SideKiqJob
   def run(s3_object_key)
     # Download a CSV and insert it into the database using minimal memory
     s3_client = Aws::S3::Client.new
-    # file_key = s3_object_key.presence || 'symphony/data/imports/test-dates-y2025.csv'
-    # file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k.csv'
-    # file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k_with_errors.csv'
-    file_key = s3_object_key.presence || 'symphony/data/imports/sample_file_25k_errors_invalid_emails.csv'
+    raise ArgumentError, 'S3 Object key was not provided' unless s3_object_key.present?
 
     @buffer = ''
     @header = []
@@ -18,14 +15,14 @@ class CsvProcessingJob < SideKiqJob
 
     s3_client.get_object(
       bucket: Symphony::Application.config.s3_bucket,
-      key: file_key
+      key: s3_object_key
     ) do |file_chunk|
       process_chunk(file_chunk)
     end
 
     call_process_with_row(@buffer)
 
-    logger.debug "Job processed a file @ key='{file_key}' rows=#{@line_count}"
+    logger.debug "Job processed a file @ key='#{s3_object_key}' rows=#{@line_count}"
   rescue Aws::Errors::ServiceError => e
     logger.error "Couldn't access file for some reason; msg: #{e.message}"
   end

@@ -40,14 +40,15 @@ class FileIngestJob < CsvProcessingJob
   ].freeze
 
   def start(s3_object_key)
-    @ingestion = Ingestion.create(file_name: s3_object_key)
+    @ingestion = Ingestion.create!(file_name: s3_object_key)
+    @item_type = ValidationError::ITEM_TYPES.sample
     @error_rows = []
     @error_row_count = 0
     checkpoint
   end
 
   def error(_, _)
-    @ingestion.fail_ingest
+    @ingestion&.fail_ingest
   end
 
   def complete(*_)
@@ -84,8 +85,25 @@ class FileIngestJob < CsvProcessingJob
 
     logger.info "Found another #{@error_rows.size} error rows"
 
+    rows = @error_rows.each_with_object([]) do |error_row, insertable_rows|
+      error_fields, row = error_row.values_at(:error_fields, :row)
+
+      error_fields.each do |field|
+        error_field, error_message = field.values_at(0, 1, 2)
+
+        insertable_rows << {
+          item_type: @item_type,
+          error_field:,
+          error_message:,
+          ingestion_id: @ingestion.id,
+          input_row: row.to_h
+        }
+      end
+    end
+
+    ValidationError.insert_all!(rows) # rubocop:disable Rails/SkipsModelValidations
+
     @error_rows = []
-    # TODO: Batch insert error rows
   end
 
   class << self
@@ -96,7 +114,9 @@ class FileIngestJob < CsvProcessingJob
         validator.call(row, field)
       end
 
-      [error_fields.empty?, error_fields.map { |field| field.values_at(:field, :message) }]
+      Rails.logger.info row.to_h
+
+      [error_fields.empty?, error_fields.map { |field| field.values_at(:field, :message) }, row.to_h]
     end
 
     def field_value(row, field_sym)

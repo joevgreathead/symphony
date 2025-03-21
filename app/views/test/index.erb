@@ -6,7 +6,7 @@
     </p>
     <p>
       <%= form.label 'Text input', for: :input %>
-      <%= form.text_field :input, class: 'border-2' %>
+      <%= form.text_field :input, class: 'border-2', value: 'symphony/data/imports/sample_file_25k_errors_invalid_emails.csv' %>
     </p>
     <%= form.submit 'Run job', class: 'border-2 p-2 rounded-md' %>
   <% end %>
