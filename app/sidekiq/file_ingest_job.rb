@@ -55,6 +55,8 @@ class FileIngestJob < CsvProcessingJob
     process_error_rows
     @ingestion.update(state: :ingested, rows: @line_count)
 
+    # TODO: Export streamed data from temp table to permanent table and apply normalization
+
     logger.info "Found #{@error_row_count} rows with errors"
     checkpoint
   end
@@ -64,7 +66,10 @@ class FileIngestJob < CsvProcessingJob
 
     if valid
       logger.info 'Valid: true'
-      # TODO: Stream in valid row
+      # TODO: List of tasks
+      # - Create a temp table
+      # - Stream in valid row
+      #
     else
       logger.info "Errors: #{error_fields.join(', ')}"
       @error_rows << { row:, error_fields: }
