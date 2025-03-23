@@ -9,15 +9,14 @@ module TestHelper
   ].freeze
 
   def job_options
-    JOB_TYPES.map do |value|
-      [value.to_s, value.to_s]
-    end
+    JOB_TYPES.map { |value| [value.to_s, value.to_s] }
+  end
+
+  def item_type_options
+    ItemType::TYPES.map { |type| [type.capitalize, type] }
   end
 
   def valid_type?(type)
-    result = JOB_TYPES.any? { |job_type| job_type.to_s == type }
-    puts "Looking for [#{type}] Result: #{result}"
-
-    result
+    JOB_TYPES.any? { |job_type| job_type.to_s == type }
   end
 end

@@ -17,4 +17,28 @@ class IngestionTest < ActiveSupport::TestCase
     ingestion.complete_ingest
     assert_not_nil ingestion.ingested_at
   end
+
+  test 'ingestion state transitions work as expected' do
+    ingestion = create(:ingestion)
+    assert_equal ingestion.state, 'pending'
+    ingestion.begin_ingest
+    assert_equal ingestion.state, 'ingesting'
+    ingestion.complete_ingest
+    assert_equal ingestion.state, 'ingested'
+  end
+
+  test 'failed ingest state transitions work as expected' do
+    create(:ingestion).tap do |ingestion|
+      ingestion.fail_ingest
+      assert_equal ingestion.state, 'ingestion_failed'
+      assert_nil ingestion.ingested_at
+    end
+
+    create(:ingestion).tap do |ingestion|
+      ingestion.begin_ingest
+      ingestion.fail_ingest
+      assert_equal ingestion.state, 'ingestion_failed'
+      assert_nil ingestion.ingested_at
+    end
+  end
 end

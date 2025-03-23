@@ -12,42 +12,21 @@ class FileIngestJob < CsvProcessingJob
   }.freeze
 
   BATCH_SIZE = 1_000
-  DEFAULT_VALIDATION = ->(row, field) { valid_field?(row, field) }
-  FIELD_DEFAULT = { validator: DEFAULT_VALIDATION }.freeze
-  FIELDS = [
-    {
-      field: :first,
-      message: 'First name can\'t be blank'
-    },
-    {
-      field: :last,
-      message: 'Last name can\'t be blank'
-    },
-    {
-      field: :email,
-      message: 'Email can\'t be blank'
-    },
-    {
-      field: :email,
-      validator: ->(row, field) { field_value(row, field).blank? || field_value(row, field).include?('@') },
-      message: 'Email must be in valid format'
-    },
-    {
-      field: :phone,
-      message: 'Phone can\'t be blank'
-    }
 
-  ].freeze
-
-  def start(s3_object_key)
+  def start(s3_object_key, item_type)
     @ingestion = Ingestion.create!(file_name: s3_object_key)
-    @item_type = ValidationError::ITEM_TYPES.sample
+
+    raise ArgumentError, 'Invalid item type' if ItemType::TYPES.exclude? item_type
+    raise ArgumentError, 'Unsupported item type' if ItemType::VALIDATIONS[item_type].blank?
+
+    @item_type = item_type
+
     @error_rows = []
     @error_row_count = 0
     checkpoint
   end
 
-  def error(_, _)
+  def error(_, *_)
     @ingestion&.fail_ingest
   end
 
@@ -62,7 +41,7 @@ class FileIngestJob < CsvProcessingJob
   end
 
   def process_row(row)
-    valid, error_fields = self.class.valid? row
+    valid, error_fields = valid? row, @item_type
 
     if valid
       logger.info 'Valid: true'
@@ -111,25 +90,13 @@ class FileIngestJob < CsvProcessingJob
     @error_rows = []
   end
 
-  class << self
-    def valid?(row)
-      error_fields = FIELDS.reject do |field_hash|
-        field, validator = FIELD_DEFAULT.merge(field_hash).values_at(:field, :validator)
+  def valid?(row, item_type)
+    error_fields = ItemType.validate(->(field) { field_value(row, field) }, item_type)
 
-        validator.call(row, field)
-      end
+    [error_fields.empty?, error_fields.map { |field| field.values_at(:field, :message) }]
+  end
 
-      Rails.logger.info row.to_h
-
-      [error_fields.empty?, error_fields.map { |field| field.values_at(:field, :message) }, row.to_h]
-    end
-
-    def field_value(row, field_sym)
-      row[row.headers[STATIC_CONFIG[field_sym] - 1]]
-    end
-
-    def valid_field?(row, field_sym)
-      field_value(row, field_sym).present?
-    end
+  def field_value(row, field_sym)
+    row[row.headers[STATIC_CONFIG[field_sym] - 1]]
   end
 end

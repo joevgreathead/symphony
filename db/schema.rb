@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 20_250_321_043_014) do
+ActiveRecord::Schema[7.1].define(version: 20_250_321_042_545) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -20,6 +20,7 @@ ActiveRecord::Schema[7.1].define(version: 20_250_321_043_014) do
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
     t.string 'state'
+    t.datetime 'ingested_at', precision: nil
     t.index ['id'], name: 'index_ingestions_on_id'
   end
 

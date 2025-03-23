@@ -4,7 +4,7 @@ require 'aws-sdk-s3'
 require 'csv'
 
 class CsvProcessingJob < SideKiqJob
-  def run(s3_object_key)
+  def run(s3_object_key, *_)
     # Download a CSV and insert it into the database using minimal memory
     s3_client = Aws::S3::Client.new
     raise ArgumentError, 'S3 Object key was not provided' unless s3_object_key.present?
@@ -25,6 +25,8 @@ class CsvProcessingJob < SideKiqJob
     logger.debug "Job processed a file @ key='#{s3_object_key}' rows=#{@line_count}"
   rescue Aws::Errors::ServiceError => e
     logger.error "Couldn't access file for some reason; msg: #{e.message}"
+
+    raise
   end
 
   def process_chunk(file_chunk)

@@ -5,8 +5,12 @@
       <%= form.select :job_type, job_options, include_blank: true, required: true %>
     </p>
     <p>
-      <%= form.label 'Text input', for: :input %>
+      <%= form.label 'S3 file key', for: :input %>
       <%= form.text_field :input, class: 'border-2', value: 'symphony/data/imports/sample_file_25k_errors_invalid_emails.csv' %>
+    </p>
+    <p>
+      <%= form.label 'Item type', for: :item_type %>
+      <%= form.select :item_type, item_type_options, class: 'border-2'  %>
     </p>
     <%= form.submit 'Run job', class: 'border-2 p-2 rounded-md' %>
   <% end %>

@@ -25,6 +25,7 @@ class Ingestion < ApplicationRecord
       transitions from: :pending, to: :ingesting
     end
     event :fail_ingest do
+      transitions from: :pending, to: :ingestion_failed
       transitions from: :ingesting, to: :ingestion_failed
     end
     event :complete_ingest do
