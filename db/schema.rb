@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 20_250_321_042_545) do
+ActiveRecord::Schema[7.1].define(version: 20_250_325_001_800) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -22,6 +22,18 @@ ActiveRecord::Schema[7.1].define(version: 20_250_321_042_545) do
     t.string 'state'
     t.datetime 'ingested_at', precision: nil
     t.index ['id'], name: 'index_ingestions_on_id'
+  end
+
+  create_table 'people', force: :cascade do |t|
+    t.string 'first'
+    t.string 'last'
+    t.string 'email'
+    t.string 'phone'
+    t.string 'unique_id'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index %w[first last email phone], name: 'index_people_on_first_and_last_and_email_and_phone',
+                                        unique: true
   end
 
   create_table 'users', force: :cascade do |t|
