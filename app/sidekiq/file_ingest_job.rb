@@ -33,7 +33,7 @@ class FileIngestJob < CsvProcessingJob
     @temp_table_name = "temp_#{@item_type}_#{@ingestion.id}"
     @connection = ActiveRecord::Base.connection.raw_connection
 
-    @connection.exec("create temporary table #{@temp_table_name} (\n#{temp_table_columns}\n) on commit preserve rows")
+    @connection.exec("create temporary table #{@temp_table_name} (\n#{temp_table_columns}\n)")
 
     checkpoint
   end
@@ -46,6 +46,16 @@ class FileIngestJob < CsvProcessingJob
   def complete(*_)
     process_error_rows
     process_valid_rows
+
+    if @valid_row_count.positive?
+      @connection.exec(
+        <<~SQL.squish
+          insert into #{@item_type.pluralize} (#{column_names}, created_at, updated_at)
+          select distinct #{column_names}, now(), now() from #{@temp_table_name}
+        SQL
+      )
+    end
+
     @ingestion.update(state: :ingested, rows: @line_count)
     close_connection
 
@@ -115,12 +125,15 @@ class FileIngestJob < CsvProcessingJob
     @error_rows = []
   end
 
+  def column_names
+    @item_columns.map { |col| "\"#{col}\"" }.join(', ')
+  end
+
   def process_valid_rows
     return if @valid_rows.empty?
 
     logger.info "Found another #{@valid_rows.size} valid rows"
 
-    column_names = @item_columns.map { |col| "\"#{col}\"" }.join(', ')
     @connection.exec("copy #{@temp_table_name} (#{column_names}) from stdin csv")
     @copy_running = true
     @valid_rows.each do |valid_row|

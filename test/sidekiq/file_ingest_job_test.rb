@@ -62,9 +62,9 @@ class FileIngestJobTest < ActiveSupport::TestCase
 
     FileIngestJob.new.perform(@object_key, ItemType::PERSON)
 
-    assert_equal expected_execution, @mock_connection.executions.last
-    @mock_connection.put_data&.each_with_index do |put_data, index|
-      assert_equal expected[index], put_data
+    assert_equal expected_execution, @mock_connection.executions[-2]
+    expected.each_with_index do |expected_row, index|
+      assert_equal expected_row, @mock_connection.put_data[index]
     end
   end
 
@@ -95,5 +95,23 @@ class FileIngestJobTest < ActiveSupport::TestCase
     FileIngestJob.new.perform(@object_key, ItemType::PERSON)
 
     assert_equal expected_create, @mock_connection.executions.first
+  end
+
+  test 'one insert to item table is run if a valid row is found' do
+    csv_data = "First,Last,Email,Phone\nJohn,Smith,js@js.com,123-456-7890"
+    @mock_s3_client.expects(:get_object).multiple_yields(csv_data)
+
+    FileIngestJob.new.perform(@object_key, ItemType::PERSON)
+
+    assert(@mock_connection.executions.one? { |exec| exec.downcase.starts_with? 'insert into' })
+  end
+
+  test 'no insert to item table is run if no valid rows are found' do
+    csv_data = "First,Last,Email,Phone\n,Smith,js@js.com,123-456-7890"
+    @mock_s3_client.expects(:get_object).multiple_yields(csv_data)
+
+    FileIngestJob.new.perform(@object_key, ItemType::PERSON)
+
+    assert(@mock_connection.executions.none? { |exec| exec.downcase.starts_with? 'insert into' })
   end
 end
