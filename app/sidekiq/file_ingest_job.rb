@@ -15,29 +15,54 @@ class FileIngestJob < CsvProcessingJob
 
   def start(s3_object_key, item_type)
     @ingestion = Ingestion.create!(file_name: s3_object_key)
-
-    raise ArgumentError, 'Invalid item type' if ItemType::TYPES.exclude? item_type
-    raise ArgumentError, 'Unsupported item type' if ItemType::VALIDATIONS[item_type].blank?
-
     @item_type = item_type
+
+    raise ArgumentError, 'Invalid item type' if ItemType::TYPES.exclude? @item_type
+    raise ArgumentError, 'Unsupported item type' if ItemType::VALIDATIONS[@item_type].blank?
 
     @error_rows = []
     @error_row_count = 0
+
+    @valid_rows = []
+    @valid_row_count = 0
+
+    @copy_running = false
+
+    @item_columns = Person::TEMP_TABLE_COLUMNS
+    temp_table_columns = @item_columns.map { |col| "\"#{col}\" varchar not null" }.join(",\n")
+    @temp_table_name = "temp_#{@item_type}_#{@ingestion.id}"
+    @connection = ActiveRecord::Base.connection.raw_connection
+
+    @connection.exec("create temporary table #{@temp_table_name} (\n#{temp_table_columns}\n) on commit preserve rows")
+
     checkpoint
   end
 
   def error(_, *_)
     @ingestion&.fail_ingest
+    close_connection
   end
 
   def complete(*_)
     process_error_rows
+    process_valid_rows
     @ingestion.update(state: :ingested, rows: @line_count)
+    close_connection
 
     # TODO: Export streamed data from temp table to permanent table and apply normalization
 
+    logger.info '++++'
+    logger.info "Ingestion id: #{@ingestion.id}"
     logger.info "Found #{@error_row_count} rows with errors"
+    logger.info "Found #{@valid_row_count} rows that were valid"
+    logger.info '++++'
     checkpoint
+  end
+
+  def close_connection
+    @connection&.put_copy_end if @copy_running
+  rescue PG::Error => e
+    Rails.logger.error(e)
   end
 
   def process_row(row)
@@ -45,10 +70,9 @@ class FileIngestJob < CsvProcessingJob
 
     if valid
       logger.info 'Valid: true'
-      # TODO: List of tasks
-      # - Create a temp table
-      # - Stream in valid row
-      #
+
+      @valid_rows << row
+      @valid_row_count += 1
     else
       logger.info "Errors: #{error_fields.join(', ')}"
       @error_rows << { row:, error_fields: }
@@ -58,6 +82,7 @@ class FileIngestJob < CsvProcessingJob
 
   def post_process_row(_)
     process_error_rows if (@error_row_count % BATCH_SIZE).zero?
+    process_valid_rows if (@valid_row_count % BATCH_SIZE).zero?
 
     checkpoint if (rand(1..500) % 500).zero?
   end
@@ -88,6 +113,24 @@ class FileIngestJob < CsvProcessingJob
     ValidationError.insert_all!(rows) # rubocop:disable Rails/SkipsModelValidations
 
     @error_rows = []
+  end
+
+  def process_valid_rows
+    return if @valid_rows.empty?
+
+    logger.info "Found another #{@valid_rows.size} valid rows"
+
+    column_names = @item_columns.map { |col| "\"#{col}\"" }.join(', ')
+    @connection.exec("copy #{@temp_table_name} (#{column_names}) from stdin csv")
+    @copy_running = true
+    @valid_rows.each do |valid_row|
+      row_data = @item_columns.map { |column| field_value(valid_row, column) }.map { |field| "\"#{field}\"" }.join(',')
+      @connection.put_copy_data("#{row_data}\n")
+    end
+    @connection.put_copy_end
+    @copy_running = false
+
+    @valid_rows = []
   end
 
   def valid?(row, item_type)
