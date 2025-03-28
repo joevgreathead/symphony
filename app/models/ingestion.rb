@@ -20,7 +20,6 @@ class Ingestion < ApplicationRecord
     state :export_failed
     state :completed
 
-    # event :begin_ingest, transitions: { pending: :ingesting }
     event :begin_ingest do
       transitions from: :pending, to: :ingesting
     end

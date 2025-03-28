@@ -1,0 +1,22 @@
+
+<% @ingestions.each do |ingestion| %>
+  <div class="flex justify-between ingestion">
+    <p>
+      <%= ingestion.id %>
+    </p>
+    <p>
+      <%= t("ingestions.index.state.#{ingestion.state}") %>
+    </p>
+    <p>
+      <%= t('ingestions.index.rows_count', rows: ingestion.rows) %>
+    </p>
+    <p>
+      <%= t('ingestions.index.started_at', created_at: ingestion.created_at.iso8601) %>
+    </p>
+    <p>
+      <%= t('ingestions.index.ended_at', ingested_at: ingestion.ingested_at&.iso8601) %>
+    </p>
+  </div>
+<% end %>
+
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

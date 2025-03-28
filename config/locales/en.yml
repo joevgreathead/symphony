@@ -32,3 +32,23 @@ en:
     invalid_job_type: Invalid job type!
   notice:
     job_type_queued: An instance of %{job_type} was enqueued
+  navbar:
+    test_page: Test jobs
+    ingestions: Ingestions
+  ingestions:
+    states:
+      pending:
+      ingesting:
+      ingested:
+      ingestion_failed:
+      transforming:
+      transformed:
+      transformation_failed:
+      exporting:
+      exported:
+      export_failed:
+      completed:
+    index:
+      rows_count: "%{rows} rows"
+      started_at: Started at %{created_at}
+      ended_at: Ended at %{ingested_at}
