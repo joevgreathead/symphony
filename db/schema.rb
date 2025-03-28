@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 20_250_325_001_800) do
+ActiveRecord::Schema[7.1].define(version: 20_250_328_040_840) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
   create_table 'ingestions', force: :cascade do |t|
     t.string 'file_name'
-    t.integer 'rows'
+    t.integer 'rows', default: 0, null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
     t.string 'state'
