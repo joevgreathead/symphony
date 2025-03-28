@@ -21,6 +21,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     assert_no_changes -> { ValidationError.count } do
       FileIngestJob.new.perform(@object_key, ItemType::PERSON)
     end
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'no validation errors are created with valid person rows' do
@@ -30,6 +31,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     assert_no_changes -> { ValidationError.count } do
       FileIngestJob.new.perform(@object_key, ItemType::PERSON)
     end
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'validation errors are created for standard fields missing on one row' do
@@ -39,6 +41,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     assert_changes -> { ValidationError.count }, from: 0, to: 2 do
       FileIngestJob.new.perform(@object_key, ItemType::PERSON)
     end
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'validation errors are created for standard fields missing on multiple rows' do
@@ -48,6 +51,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     assert_changes -> { ValidationError.count }, from: 0, to: 4 do
       FileIngestJob.new.perform(@object_key, ItemType::PERSON)
     end
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'valid rows are streamed to the database with correct columns' do
@@ -66,6 +70,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     expected.each_with_index do |expected_row, index|
       assert_equal expected_row, @mock_connection.put_data[index]
     end
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'connection is closed even in an error scenario' do
@@ -79,6 +84,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     end
 
     assert @mock_connection.end_called
+    assert_equal :ingestion_failed, Ingestion.first.state.to_sym
   end
 
   test 'job creates a temp table with the relevant item\'s columns' do
@@ -95,6 +101,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     FileIngestJob.new.perform(@object_key, ItemType::PERSON)
 
     assert_equal expected_create, @mock_connection.executions.first
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'one insert to item table is run if a valid row is found' do
@@ -104,6 +111,7 @@ class FileIngestJobTest < ActiveSupport::TestCase
     FileIngestJob.new.perform(@object_key, ItemType::PERSON)
 
     assert(@mock_connection.executions.one? { |exec| exec.downcase.starts_with? 'insert into' })
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 
   test 'no insert to item table is run if no valid rows are found' do
@@ -113,5 +121,6 @@ class FileIngestJobTest < ActiveSupport::TestCase
     FileIngestJob.new.perform(@object_key, ItemType::PERSON)
 
     assert(@mock_connection.executions.none? { |exec| exec.downcase.starts_with? 'insert into' })
+    assert_equal :ingested, Ingestion.first.state.to_sym
   end
 end

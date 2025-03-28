@@ -36,10 +36,11 @@ class FileIngestJob < CsvProcessingJob
     @connection.exec("create temporary table #{@temp_table_name} (\n#{temp_table_columns}\n)")
 
     checkpoint
+    @ingestion.begin_ingest!
   end
 
   def error(_, *_)
-    @ingestion&.fail_ingest
+    @ingestion.fail_ingest!
     close_connection
   end
 
@@ -56,7 +57,8 @@ class FileIngestJob < CsvProcessingJob
       )
     end
 
-    @ingestion.update(state: :ingested, rows: @line_count)
+    @ingestion.complete_ingest!
+    @ingestion.update!(rows: @line_count)
     close_connection
 
     # TODO: Export streamed data from temp table to permanent table and apply normalization
