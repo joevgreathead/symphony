@@ -1,0 +1,22 @@
+<% @people.each do |person| %>
+<div class="person flex justify-between mb-6">
+  <div>
+    <p>
+      <%= person.id %>
+    </p>
+    <p>
+      <%= t("person.name", first: person.first, last: person.last) %>
+    </p>
+  </div>
+  <div class="text-right">
+    <p>
+      <%= t("person.email", email: person.email) %>
+    </p>
+    <p>
+      <%= t("person.phone", phone: person.phone) %>
+    </p>
+  </div>
+</div>
+<% end %>
+
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

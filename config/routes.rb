@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
   resources :test, only: %i[index create]
   resources :ingestions, only: %i[index]
+  resources :people, only: %i[index]
 
   # Defines the root path route ("/")
   # root "posts#index"

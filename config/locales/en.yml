@@ -35,6 +35,10 @@ en:
   navbar:
     test_page: Test jobs
     ingestions: Ingestions
+  person:
+    name: "Name: %{first} %{last}"
+    email: "Email: %{email}"
+    phone: "Phone: %{phone}"
   ingestions:
     states:
       pending:
