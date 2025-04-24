@@ -14,10 +14,8 @@ module Utility
 
     def insert
       <<-SQL.squish
-        insert into #{table_name} #{table_columns}
-        values (
-          #{raw_sql}
-        )
+        insert into #{table_name} (#{table_columns.join(', ')})
+        #{raw_sql}
       SQL
     end
 
