@@ -7,7 +7,7 @@ class CsvProcessingJob < SideKiqJob
   def run(s3_object_key, *_)
     # Download a CSV and insert it into the database using minimal memory
     s3_client = Aws::S3::Client.new
-    raise ArgumentError, 'S3 Object key was not provided' unless s3_object_key.present?
+    raise ArgumentError, 'S3 Object key was not provided' if s3_object_key.blank?
 
     @buffer = ''
     @header = []

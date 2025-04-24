@@ -3,7 +3,7 @@
 require 'aws-sdk-s3'
 
 class BucketListJob < SideKiqJob
-  def run(arg)
+  def run(_arg)
     # Download a CSV and insert it into the database using minimal memory
     Rails.logger.info 'Found the following buckets'
     Aws::S3::Resource.new.buckets.each do |bucket|
