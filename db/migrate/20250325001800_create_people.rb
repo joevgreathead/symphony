@@ -9,8 +9,6 @@ class CreatePeople < ActiveRecord::Migration[7.1]
       t.string :phone
       t.string :unique_id
 
-      t.index %i[first last email phone], unique: true
-
       t.timestamps
     end
   end

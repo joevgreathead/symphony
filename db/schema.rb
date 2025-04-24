@@ -17,10 +17,10 @@ ActiveRecord::Schema[7.1].define(version: 20_250_328_040_840) do
   create_table 'ingestions', force: :cascade do |t|
     t.string 'file_name'
     t.integer 'rows', default: 0, null: false
+    t.datetime 'ingested_at', precision: nil
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
     t.string 'state'
-    t.datetime 'ingested_at', precision: nil
     t.index ['id'], name: 'index_ingestions_on_id'
   end
 
@@ -32,8 +32,6 @@ ActiveRecord::Schema[7.1].define(version: 20_250_328_040_840) do
     t.string 'unique_id'
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.index %w[first last email phone], name: 'index_people_on_first_and_last_and_email_and_phone',
-                                        unique: true
   end
 
   create_table 'users', force: :cascade do |t|
