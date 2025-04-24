@@ -24,10 +24,11 @@
   </p>
   <% end %>
 
-  <div class="w-[900px] mx-auto">
+  <div class="w-[900px] md:w-[80%] mx-auto">
     <div class="flex justify-between mb-8">
       <%= link_to t('navbar.test_page'), test_index_url %>
       <%= link_to t('navbar.ingestions'), ingestions_url %>
+      <%= link_to t('navbar.people'), people_url %>
     </div>
     <%= yield %>
   </div>
